@@ -36,7 +36,7 @@ public class IPv6Framer implements Framer<MACPacket, IPv6Packet> {
      */
     @Override
     public Protocol getProtocol() {
-        return Protocol.IPv4;
+        return Protocol.IPv6;
     }
 
     /**
@@ -44,7 +44,6 @@ public class IPv6Framer implements Framer<MACPacket, IPv6Packet> {
      */
     @Override
     public IPv6Packet frame(final MACPacket parent, final Buffer payload) throws IOException {
-
         if (parent == null) {
             throw new IllegalArgumentException("The parent frame cannot be null");
         }
@@ -76,7 +75,7 @@ public class IPv6Framer implements Framer<MACPacket, IPv6Packet> {
 
         //Trim off any padding from the upper layer, e.g. Ethernet padding for small packets.
         // If the captured frame was truncated, then use the truncated size for the data buffer, instead of what the
-        // IPv4 header says its length should be.
+        // IPv6 header says its length should be.
         final int totalLength = IPv6PacketImpl.FIXED_HEADER_LENGTH + extensionHeadersBuffer.getWriterIndex() + payloadLength;
         final Buffer data = payload.slice(Math.min(totalLength, payload.capacity()));
         return new IPv6PacketImpl(parent, Buffers.wrap(fixedHeader, extensionHeadersBuffer), nextHeader, data);

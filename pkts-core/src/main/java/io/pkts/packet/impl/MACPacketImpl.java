@@ -9,7 +9,10 @@ import io.pkts.frame.UnknownEtherType;
 import io.pkts.framer.EthernetFramer;
 import io.pkts.framer.IPv4Framer;
 import io.pkts.framer.IPv6Framer;
-import io.pkts.packet.*;
+import io.pkts.packet.IPPacket;
+import io.pkts.packet.MACPacket;
+import io.pkts.packet.PCapPacket;
+import io.pkts.packet.PacketParseException;
 import io.pkts.protocol.Protocol;
 
 import java.io.IOException;

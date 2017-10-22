@@ -23,7 +23,7 @@ import java.nio.charset.StandardCharsets;
 /**
  * @author jonas@jonasborjesson.com
  */
-public class IPFramerTest extends PktsTestBase {
+public class IPv4FramerTest extends PktsTestBase {
 
     @Test(expected = IllegalArgumentException.class)
     public void testIPFramerNoParent() throws Exception {

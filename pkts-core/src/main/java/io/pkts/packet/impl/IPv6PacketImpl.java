@@ -29,9 +29,6 @@ public final class IPv6PacketImpl extends AbstractPacket implements IPv6Packet {
 
     private final int nextProtocol;
 
-    /**
-     *
-     */
     public IPv6PacketImpl(final Packet parent, final Buffer headers, int nextProtocol, final Buffer payload) {
         super(Protocol.IPv6, parent, payload);
         assert parent != null;
@@ -67,7 +64,8 @@ public final class IPv6PacketImpl extends AbstractPacket implements IPv6Packet {
      */
     @Override
     public String getSourceIP() {
-        throw new RuntimeException("TODO");
+        // TODO
+        throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -89,7 +87,6 @@ public final class IPv6PacketImpl extends AbstractPacket implements IPv6Packet {
     public void setDestinationIP(String destinationIP) {
         // TODO
         throw new RuntimeException("Not implemented");
-
     }
 
     /**
@@ -98,7 +95,8 @@ public final class IPv6PacketImpl extends AbstractPacket implements IPv6Packet {
      */
     @Override
     public String getDestinationIP() {
-        throw new RuntimeException("TODO");
+        // TODO
+        throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -125,12 +123,12 @@ public final class IPv6PacketImpl extends AbstractPacket implements IPv6Packet {
         return FIXED_HEADER_LENGTH + this.headers.getUnsignedShort(4);
     }
 
-    public void setSourceIP(final byte[] ip) {
+    public void setRawSourceIP(final byte[] ip) {
         this.headers.setWriterIndex(8);
         this.headers.write(ip);
     }
 
-    public void setDestinationIP(final byte[] ip) {
+    public void setRawDestinationIP(final byte[] ip) {
         this.headers.setWriterIndex(24);
         this.headers.write(ip);
     }
@@ -165,18 +163,13 @@ public final class IPv6PacketImpl extends AbstractPacket implements IPv6Packet {
 
     }
 
-    /**
-     * The version of this ip frame, will always be 4
-     *
-     * @return
-     */
     @Override
     public int getVersion() {
         return 6;
     }
 
     /**
-     * The length of the ipv4 headers
+     * The length of the IPv6 headers
      *
      * @return
      */

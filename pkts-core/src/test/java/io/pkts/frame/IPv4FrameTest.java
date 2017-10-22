@@ -19,7 +19,7 @@ import org.junit.Test;
  * @author jonas@jonasborjesson.com
  * 
  */
-public class IPFrameTest extends PktsTestBase {
+public class IPv4FrameTest extends PktsTestBase {
 
     /**
      * {@inheritDoc}
