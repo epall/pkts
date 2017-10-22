@@ -58,7 +58,7 @@ public class IPv6Framer implements Framer<MACPacket, IPv6Packet> {
 
         final int payloadLength = fixedHeader.getUnsignedShort(4);
 
-        int nextHeader = fixedHeader.getUnsignedShort(6);
+        int nextHeader = fixedHeader.getByte(6);
 
         final Buffer extensionHeadersBuffer = Buffers.createBuffer(400);
         while (nextHeader == EXTENSION_HOP_BY_HOP ||

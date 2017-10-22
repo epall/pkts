@@ -14,6 +14,8 @@ import io.pkts.protocol.Protocol;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 /**
  * @author epall@google.com
@@ -64,8 +66,12 @@ public final class IPv6PacketImpl extends AbstractPacket implements IPv6Packet {
      */
     @Override
     public String getSourceIP() {
-        // TODO
-        throw new RuntimeException("Not implemented");
+        try {
+            InetAddress addr = InetAddress.getByAddress(getRawSourceIP());
+            return addr.getHostAddress();
+        } catch (UnknownHostException e) {
+            return null;
+        }
     }
 
     /**
