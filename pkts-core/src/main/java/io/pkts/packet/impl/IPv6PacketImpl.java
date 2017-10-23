@@ -5,6 +5,7 @@ package io.pkts.packet.impl;
 
 import io.pkts.buffer.Buffer;
 import io.pkts.buffer.Buffers;
+import io.pkts.framer.FramingException;
 import io.pkts.framer.TCPFramer;
 import io.pkts.framer.UDPFramer;
 import io.pkts.packet.IPv6Packet;
@@ -195,14 +196,16 @@ public final class IPv6PacketImpl extends AbstractPacket implements IPv6Packet {
 
     @Override
     public boolean isFragmented() {
-        // TODO
-        return false;
+        Buffer fragmentHeader = null;
+        fragmentHeader = getHeader(EXTENSION_FRAGMENT);
+        return fragmentHeader != null;
     }
 
     @Override
     public short getFragmentOffset() {
-        // TODO
-        return 0;
+        Buffer fragmentHeader = getHeader(EXTENSION_FRAGMENT);
+        int offset = (fragmentHeader.getShort(2) & 0xFFF8) >> 3;
+        return (short) (offset * 8);
     }
 
     @Override
@@ -211,4 +214,46 @@ public final class IPv6PacketImpl extends AbstractPacket implements IPv6Packet {
         return "IPv6";
     }
 
+    private Buffer getHeader(int extensionNumber) {
+        try {
+            int startOfHeader = IPv6PacketImpl.FIXED_HEADER_LENGTH;
+            byte thisHeaderNumber = this.headers.getByte(6);
+            byte nextHeaderNumber;
+            int headerExtensionLen;
+            // advance to next header
+            while (startOfHeader < this.headers.capacity()) {
+                switch (extensionNumber) {
+                    case IPv6Packet.EXTENSION_HOP_BY_HOP:
+                    case IPv6Packet.EXTENSION_ROUTING:
+                    case IPv6Packet.EXTENSION_DESTINATION_OPTIONS:
+                        nextHeaderNumber = this.headers.getByte(startOfHeader);
+                        headerExtensionLen = 8 + this.headers.getByte(startOfHeader + 1) * 8;
+                        break;
+                    case IPv6Packet.EXTENSION_FRAGMENT:
+                        nextHeaderNumber = this.headers.getByte(startOfHeader);
+                        headerExtensionLen = 8;
+                        break;
+                    case IPv6Packet.EXTENSION_AH:
+                        nextHeaderNumber = this.headers.getByte(startOfHeader);
+                        headerExtensionLen = 4 * (this.headers.getByte(startOfHeader + 1) + 2);
+                        break;
+                    case IPv6Packet.EXTENSION_ESP:
+                        // TODO figure out how length is even parsed...
+                    default:
+                        // out of headers to check
+                        return null;
+                }
+                if (thisHeaderNumber == extensionNumber) {
+                    // extract the header and return in a buffer
+                    return this.headers.slice(startOfHeader, startOfHeader + headerExtensionLen);
+                }
+                // advance to next header
+                startOfHeader += headerExtensionLen;
+                thisHeaderNumber = nextHeaderNumber;
+            }
+        } catch (IOException e) {
+            throw new PacketParseException(0, String.format("Error extracting extension header %d", extensionNumber), e);
+        }
+        return null;
+    }
 }

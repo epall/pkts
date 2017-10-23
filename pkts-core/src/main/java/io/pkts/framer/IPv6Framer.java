@@ -18,16 +18,6 @@ import java.io.IOException;
  */
 public class IPv6Framer implements Framer<MACPacket, IPv6Packet> {
 
-    private static final byte VERSION_IDENTIFIER = 6;
-
-    private static final int EXTENSION_HOP_BY_HOP = 0;
-    private static final int EXTENSION_DESTINATION_OPTIONS = 60;
-    private static final int EXTENSION_ROUTING = 43;
-    private static final int EXTENSION_FRAGMENT = 44;
-    private static final int EXTENSION_AH = 51;
-    private static final int EXTENSION_ESP = 50;
-    private static final int EXTENSION_MOBILITY = 135;
-
     public IPv6Framer() {
     }
 
@@ -52,7 +42,7 @@ public class IPv6Framer implements Framer<MACPacket, IPv6Packet> {
 
         // byte 1, contains the version and the length
         final int version = (fixedHeader.getByte(0) & 0xF0) >> 4;
-        if (version != VERSION_IDENTIFIER) {
+        if (version != IPv6Packet.VERSION_IDENTIFIER) {
             throw new FramingException(String.format("Invalid IPv6 version: %d", version), Protocol.IPv6);
         }
 
@@ -61,13 +51,13 @@ public class IPv6Framer implements Framer<MACPacket, IPv6Packet> {
         int nextHeader = fixedHeader.getByte(6);
 
         final Buffer extensionHeadersBuffer = Buffers.createBuffer(400);
-        while (nextHeader == EXTENSION_HOP_BY_HOP ||
-                nextHeader == EXTENSION_DESTINATION_OPTIONS ||
-                nextHeader == EXTENSION_ROUTING ||
-                nextHeader == EXTENSION_FRAGMENT ||
-                nextHeader == EXTENSION_AH ||
-                nextHeader == EXTENSION_ESP ||
-                nextHeader == EXTENSION_MOBILITY) {
+        while (nextHeader == IPv6Packet.EXTENSION_HOP_BY_HOP ||
+                nextHeader == IPv6Packet.EXTENSION_DESTINATION_OPTIONS ||
+                nextHeader == IPv6Packet.EXTENSION_ROUTING ||
+                nextHeader == IPv6Packet.EXTENSION_FRAGMENT ||
+                nextHeader == IPv6Packet.EXTENSION_AH ||
+                nextHeader == IPv6Packet.EXTENSION_ESP ||
+                nextHeader == IPv6Packet.EXTENSION_MOBILITY) {
             nextHeader = accumulateNextHeader(nextHeader, payload, extensionHeadersBuffer);
         }
         // TODO: extract actual PayloadLength from Hop-by-Hop extension header, if present
@@ -85,21 +75,21 @@ public class IPv6Framer implements Framer<MACPacket, IPv6Packet> {
         int headerExtensionLen;
         int nextHeaderProtocol;
         switch (protocolNumber) {
-            case EXTENSION_HOP_BY_HOP:
-            case EXTENSION_ROUTING:
-            case EXTENSION_DESTINATION_OPTIONS:
+            case IPv6Packet.EXTENSION_HOP_BY_HOP:
+            case IPv6Packet.EXTENSION_ROUTING:
+            case IPv6Packet.EXTENSION_DESTINATION_OPTIONS:
                 nextHeaderProtocol = payload.getByte(IPv6PacketImpl.FIXED_HEADER_LENGTH);
                 headerExtensionLen = 8 + payload.getByte(IPv6PacketImpl.FIXED_HEADER_LENGTH + 1) * 8;
                 break;
-            case EXTENSION_FRAGMENT:
+            case IPv6Packet.EXTENSION_FRAGMENT:
                 nextHeaderProtocol = payload.getByte(IPv6PacketImpl.FIXED_HEADER_LENGTH);
                 headerExtensionLen = 8;
                 break;
-            case EXTENSION_AH:
+            case IPv6Packet.EXTENSION_AH:
                 nextHeaderProtocol = payload.getByte(IPv6PacketImpl.FIXED_HEADER_LENGTH);
                 headerExtensionLen = 4 * (payload.getByte(IPv6PacketImpl.FIXED_HEADER_LENGTH + 1) + 2);
                 break;
-            case EXTENSION_ESP:
+            case IPv6Packet.EXTENSION_ESP:
               // TODO figure out how length is even parsed...
             default:
                 throw new FramingException(String.format("Unsupported IPv6 extension header: %d", protocolNumber), Protocol.IPv6);
