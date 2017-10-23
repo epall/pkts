@@ -102,8 +102,12 @@ public final class IPv6PacketImpl extends AbstractPacket implements IPv6Packet {
      */
     @Override
     public String getDestinationIP() {
-        // TODO
-        throw new RuntimeException("Not implemented");
+        try {
+            InetAddress addr = InetAddress.getByAddress(getRawDestinationIP());
+            return addr.getHostAddress();
+        } catch (UnknownHostException e) {
+            return null;
+        }
     }
 
     /**
@@ -210,8 +214,11 @@ public final class IPv6PacketImpl extends AbstractPacket implements IPv6Packet {
 
     @Override
     public String toString() {
-        // TODO
-        return "IPv6";
+        final StringBuilder sb = new StringBuilder("IPv6 ");
+        sb.append(" Total Length: ").append(getTotalIPLength())
+                .append(" ID: ").append(getIdentification())
+                .append(" Fragment Offset: ").append(getFragmentOffset());
+        return sb.toString();
     }
 
     private Buffer getHeader(int extensionNumber) {
