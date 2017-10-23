@@ -50,7 +50,7 @@ public final class IPv6PacketImpl extends AbstractPacket implements IPv6Packet {
      */
     @Override
     public byte[] getRawSourceIP() {
-        Buffer tmp = Buffers.createBuffer(128 / 8);
+        final Buffer tmp = Buffers.createBuffer(128 / 8);
         this.headers.getBytes(8, tmp);
         return tmp.getArray();
     }
@@ -68,8 +68,7 @@ public final class IPv6PacketImpl extends AbstractPacket implements IPv6Packet {
     @Override
     public String getSourceIP() {
         try {
-            InetAddress addr = InetAddress.getByAddress(getRawSourceIP());
-            return addr.getHostAddress();
+            return InetAddress.getByAddress(getRawSourceIP()).getHostAddress();
         } catch (UnknownHostException e) {
             return null;
         }
@@ -85,7 +84,7 @@ public final class IPv6PacketImpl extends AbstractPacket implements IPv6Packet {
      */
     @Override
     public byte[] getRawDestinationIP() {
-        Buffer tmp = Buffers.createBuffer(128 / 8);
+        final Buffer tmp = Buffers.createBuffer(128 / 8);
         this.headers.getBytes(24, tmp);
         return tmp.getArray();
     }
@@ -103,8 +102,7 @@ public final class IPv6PacketImpl extends AbstractPacket implements IPv6Packet {
     @Override
     public String getDestinationIP() {
         try {
-            InetAddress addr = InetAddress.getByAddress(getRawDestinationIP());
-            return addr.getHostAddress();
+            return InetAddress.getByAddress(getRawDestinationIP()).getHostAddress();
         } catch (UnknownHostException e) {
             return null;
         }
@@ -200,16 +198,17 @@ public final class IPv6PacketImpl extends AbstractPacket implements IPv6Packet {
 
     @Override
     public boolean isFragmented() {
-        Buffer fragmentHeader = null;
-        fragmentHeader = getHeader(EXTENSION_FRAGMENT);
-        return fragmentHeader != null;
+        return (getHeader(EXTENSION_FRAGMENT) != null);
     }
 
     @Override
     public short getFragmentOffset() {
-        Buffer fragmentHeader = getHeader(EXTENSION_FRAGMENT);
-        int offset = (fragmentHeader.getShort(2) & 0xFFF8) >> 3;
-        return (short) (offset * 8);
+        final Buffer fragmentHeader = getHeader(EXTENSION_FRAGMENT);
+        if (fragmentHeader != null) {
+            final int offset = (fragmentHeader.getShort(2) & 0xFFF8) >> 3;
+            return (short) (offset * 8);
+        }
+        return -1;
     }
 
     @Override

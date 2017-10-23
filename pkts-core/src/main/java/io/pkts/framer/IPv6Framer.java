@@ -63,7 +63,7 @@ public class IPv6Framer implements Framer<MACPacket, IPv6Packet> {
         // TODO: extract actual PayloadLength from Hop-by-Hop extension header, if present
 
 
-        //Trim off any padding from the upper layer, e.g. Ethernet padding for small packets.
+        // Trim off any padding from the upper layer, e.g. Ethernet padding for small packets.
         // If the captured frame was truncated, then use the truncated size for the data buffer, instead of what the
         // IPv6 header says its length should be.
         final int totalLength = IPv6PacketImpl.FIXED_HEADER_LENGTH + extensionHeadersBuffer.getWriterIndex() + payloadLength;
